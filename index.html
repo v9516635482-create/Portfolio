@@ -432,8 +432,36 @@
     font-size: 14px; font-weight: 500; color: var(--ink); text-decoration: none;
     border-bottom: 1.5px solid var(--accent); padding-bottom: 3px; transition: color .2s;
   }
+  .hero-actions .cv { border: 0; background: transparent; cursor: pointer; font: inherit; }
   .hero-actions .tg:hover { color: var(--accent); }
   .hero-actions .loc { font-family: var(--font-display); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+  .cv-viewer {
+    position: fixed; inset: 0; z-index: 1000; display: none;
+    padding: 72px 28px 28px;
+    background: rgba(12,11,8,.82); backdrop-filter: blur(10px);
+    cursor: zoom-out;
+  }
+  .cv-viewer.open { display: block; }
+  .cv-bar {
+    position: fixed; top: 18px; left: 28px; right: 28px;
+    display: flex; justify-content: flex-end; gap: 10px; z-index: 1001;
+    pointer-events: none;
+  }
+  .cv-save {
+    pointer-events: auto; min-height: 40px; padding: 0 18px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 999px; background: var(--paper); border: 1px solid rgba(241,238,229,.42);
+    color: var(--ink); font-family: var(--font-display); font-size: 13px; font-weight: 650;
+    text-decoration: none;
+  }
+  .cv-frame {
+    width: min(920px, 100%); height: 100%; margin: 0 auto;
+    border-radius: 8px; overflow: hidden; background: #fff;
+    box-shadow: 0 24px 80px rgba(0,0,0,.38);
+    pointer-events: none;
+  }
+  .cv-frame iframe { width: 100%; height: 100%; border: 0; display: block; pointer-events: none; }
 
   .portrait { position: relative; min-height: 0; }
   .portrait .frame {
@@ -721,6 +749,7 @@
         <div class="hero-actions">
           <a href="#work" class="primary-action">Смотреть кейсы →</a>
           <a href="https://t.me/ux_vika" class="tg" target="_blank" rel="noopener">Telegram →</a>
+          <button class="tg cv" type="button" data-cv-open>CV →</button>
           <span class="loc">СПб · удалёнка / гибрид</span>
         </div>
       </div>
@@ -926,10 +955,47 @@
 
 </div>
 
+<div class="cv-viewer" id="cvViewer" aria-hidden="true">
+  <div class="cv-bar">
+    <a class="cv-save" href="cv.pdf" download>Сохранить</a>
+  </div>
+  <div class="cv-frame">
+    <iframe src="cv.pdf" title="CV Виктории Шаханиной"></iframe>
+  </div>
+</div>
+
 <script>
   (function () {
     var pf = document.getElementById('protoFrame');
     if (pf) pf.src = 'badminton/proto.html';
+  })();
+</script>
+
+<script>
+  (function () {
+    var viewer = document.getElementById('cvViewer');
+    var openBtn = document.querySelector('[data-cv-open]');
+    if (!viewer || !openBtn) return;
+
+    function openCv() {
+      viewer.classList.add('open');
+      viewer.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCv() {
+      viewer.classList.remove('open');
+      viewer.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    openBtn.addEventListener('click', openCv);
+    viewer.addEventListener('click', function (event) {
+      if (!event.target.closest('.cv-save')) closeCv();
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && viewer.classList.contains('open')) closeCv();
+    });
   })();
 </script>
 
